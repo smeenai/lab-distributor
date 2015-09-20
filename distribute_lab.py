@@ -60,16 +60,17 @@ import traceback
 
 # trailing commas are okay in Python thankfully
 ignore_patterns = [
-    '*.bak', # Vim backup files
-    '*.exe', # Windows executable files
-    '*.o', # object files
-    '*.swp', # Vim swap files
-    '*.vcd', # wavedumps
-    '*~', # Emacs backup files and gedit temp files
-    '*.pyc', # Python bytecode
-    '*.dSYM', # debug symbols file
+    '*.bak',  # Vim backup files
+    '*.exe',  # Windows executable files
+    '*.o',  # object files
+    '*.swp',  # Vim swap files
+    '*.vcd',  # wavedumps
+    '*~',  # Emacs backup files and gedit temp files
+    '*.pyc',  # Python bytecode
+    '*.dSYM',  # debug symbols file
     # what am I missing?
 ]
+
 
 def distribute_lab(lab_name, recipients):
     """
@@ -100,7 +101,7 @@ def distribute_lab(lab_name, recipients):
         netids = recipients.split(',')
 
     update_mode = lab.readonly_updated or lab.writable_updated or \
-            lab.shared_updated
+        lab.shared_updated
     readonly = lab.readonly_updated if update_mode else lab.readonly
     writable = lab.writable_updated if update_mode else lab.writable
     shared = lab.shared_updated if update_mode else lab.shared
@@ -121,6 +122,7 @@ def distribute_lab(lab_name, recipients):
                 add_partner_file(netid, dest_dir)
         except:
             traceback.print_exc()
+
 
 def process_lab_module(lab):
     """
@@ -145,12 +147,14 @@ def process_lab_module(lab):
     lab.writable_updated = process_file_list(lab.writable_updated)
     lab.shared_updated = process_file_list(lab.shared_updated)
 
+
 def process_file_list(file_list):
     """
     Splits the file names in a file list by directory,
     to allow subdirectory files to be handled properly.
     """
     return [path.split('/') for path in file_list]
+
 
 def add_shared_files(lab_dir, svn_dir, lab_name, shared):
     """
@@ -164,6 +168,7 @@ def add_shared_files(lab_dir, svn_dir, lab_name, shared):
     add_directory(shared_dir)
     add_files(shared, lab_dir, shared_dir)
 
+
 def add_to_svn(path):
     """
     Adds the path to SVN, if it's not already present.
@@ -171,6 +176,7 @@ def add_to_svn(path):
     not_in_svn = call_silently(['svn', 'info', path], True)
     if not_in_svn:
         call_silently(['svn', 'add', path])
+
 
 def add_directory(dest_dir):
     """
@@ -180,6 +186,7 @@ def add_directory(dest_dir):
         os.mkdir(dest_dir)
     add_to_svn(dest_dir)
 
+
 def add_subdirectories(file_path, dest_dir):
     """
     Creates and adds all the subdirectories in a path to SVN.
@@ -188,6 +195,7 @@ def add_subdirectories(file_path, dest_dir):
     for child_dir in file_path[:-1]:
         current_dir = os.path.join(current_dir, child_dir)
         add_directory(current_dir)
+
 
 def add_files(file_names, lab_dir, dest_dir):
     """
@@ -204,6 +212,7 @@ def add_files(file_names, lab_dir, dest_dir):
         shutil.copy2(file_path, dest_path)
         add_to_svn(dest_path)
 
+
 def add_partner_file(netid, dest_dir):
     """
     Adds a partners.txt file containing netid to dest_dir.
@@ -213,6 +222,7 @@ def add_partner_file(netid, dest_dir):
     with open(partner_file_path, 'wb') as partner_file:
         partner_file.write((netid + '\n').encode('utf_8'))
         add_to_svn(partner_file_path)
+
 
 def mark_readonly(file_names, dest_dir):
     """
@@ -230,6 +240,7 @@ def mark_readonly(file_names, dest_dir):
         write_mask = stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH
         os.chmod(file_path, file_stat.st_mode & ~write_mask)
 
+
 def mark_writable(file_names, dest_dir):
     """
     Marks the files in file_names as writable, both in SVN and the filesystem.
@@ -244,6 +255,7 @@ def mark_writable(file_names, dest_dir):
         file_stat = os.stat(file_path)
         os.chmod(file_path, file_stat.st_mode | stat.S_IWUSR)
 
+
 def mark_ignored(patterns, dest_dir):
     """
     Adds the specified patterns to the svn:ignore of dest_dir.
@@ -251,6 +263,7 @@ def mark_ignored(patterns, dest_dir):
     patterns = [os.path.join(*pattern) for pattern in patterns]
     ignore_list = '\n'.join(ignore_patterns + patterns)
     call_silently(['svn', 'propset', 'svn:ignore', ignore_list, dest_dir])
+
 
 def call_silently(args, suppress_stderr=False):
     """
