@@ -51,6 +51,7 @@ The __init__.py can have the following (all elements are optional):
 
 from __future__ import print_function
 
+import importlib
 import os
 import shutil
 import stat
@@ -79,9 +80,7 @@ def distribute_lab(lab_name, recipients):
                   the name of a directory under _class
         recipients: see file documentation above
     """
-    # this should be using importlib.import_module, but that's Python 2.7+,
-    # whereas EWS runs Python 2.6
-    lab = __import__(lab_name)
+    lab = importlib.import_module(lab_name)
     process_lab_module(lab)
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
