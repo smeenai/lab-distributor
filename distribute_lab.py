@@ -138,23 +138,11 @@ def add_shared_files(lab_dir, svn_dir, lab_name, shared):
 
 def add_to_svn(path):
     """
-    Add the path to SVN, if it's not already present.
+    Add a path to SVN.
 
     :param path: The path to add
     """
-    if not in_svn(path):
-        call_silently(['svn', 'add', path])
-
-
-def in_svn(path):
-    """
-    Check if path exists in SVN.
-
-    :param path: The path to check for existence
-    :return true if it exists and false if not
-    """
-    return_code = call_silently(['svn', 'info', path], True)
-    return return_code == 0
+    call_silently(['svn', 'add', '--force', path])
 
 
 def add_directory(dest_dir):
@@ -197,8 +185,8 @@ def add_files(file_names, lab_dir, dest_dir):
             # overwrite file even if it's presently read-only
             os.chmod(dest_path, stat.S_IWUSR)
         shutil.copy2(file_path, dest_path)
-        add_to_svn(dest_path)
 
+    add_to_svn(dest_dir)
 
 def add_partner_file(netid, dest_dir):
     """
@@ -378,7 +366,7 @@ def get_missing_netids(args):
     missing = []
     for netid in netids:
         lab_dir = os.path.join(args.svn_dir, netid, lab_name)
-        if not in_svn(lab_dir):
+        if not os.path.isdir(lab_dir):
             missing.append(netid)
 
     return missing
