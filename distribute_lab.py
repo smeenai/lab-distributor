@@ -153,7 +153,6 @@ def add_directory(dest_dir):
     """
     if not os.path.isdir(dest_dir):
         os.mkdir(dest_dir)
-    add_to_svn(dest_dir)
 
 
 def add_subdirectories(file_path, dest_dir):
