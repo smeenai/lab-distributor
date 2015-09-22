@@ -265,8 +265,8 @@ def main():
                 roster at SVN_DIR/_class/Honors/honors.txt''')
     recipients_group.add_argument(
         '-m', '--missing', action='store_true',
-        help='''Distribute to all students missing the lab. Assumes an
-                up-to-date SVN_DIR''')
+        help='''Distribute to all students in SVN_DIR/_roster/students.txt
+                without the lab directory. Assumes an up-to-date SVN_DIR''')
     recipients_group.add_argument(
         '-n', '--netids', nargs='+',
         help='Distribute to the space-separated list of NetIDs')
