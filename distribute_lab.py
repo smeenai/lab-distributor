@@ -15,7 +15,7 @@ import sys
 import traceback
 
 # trailing commas are okay in Python thankfully
-ignore_patterns = [
+IGNORE_PATTERNS = [
     '*.bak',  # Vim backup files
     '*.exe',  # Windows executable files
     '*.o',  # object files
@@ -215,7 +215,7 @@ def mark_ignored(patterns, dest_dir):
     Adds the specified patterns to the svn:ignore of dest_dir.
     """
     patterns = [os.path.join(*pattern) for pattern in patterns]
-    ignore_list = '\n'.join(ignore_patterns + patterns)
+    ignore_list = '\n'.join(IGNORE_PATTERNS + patterns)
     call_silently(['svn', 'propset', 'svn:ignore', ignore_list, dest_dir])
 
 
@@ -304,7 +304,7 @@ __init.py__ DETAILS
     - a list called "ignore" containing additional file patterns to ignore.
       These will be added to the svn:ignore of the Lab folder, so format them
       accordingly. Some patterns are automatically ignored; see the list
-      called "ignore_patterns" below
+      called "IGNORE_PATTERNS" at the top of the script
     - a function called "generate" which takes a NetID as an argument and
       generates files specific to that NetID. The names of these files should
       be included in either the readonly or writable list as appropriate
