@@ -33,31 +33,16 @@ IGNORE_PATTERNS = [
 ]
 
 
-def distribute_lab(lab_name, recipients):
+def distribute_lab(netids, lab_dir, svn_dir):
     """
-    Distributes the specified lab to the specified recipients.
-        lab_name: the name of the lab, which should also be
-                  the name of a directory under _class
-        recipients: see file documentation above
+    Distribute the specified lab to the specified NetIDs.
+
+    :param lab_dir: The path to the lab directory
+    :param netids: A list of NetIDs to distribute to
     """
-    lab = importlib.import_module(lab_name)
+    lab_name = os.path.basename(lab_dir)
+    lab = import_lab_module(lab_dir)
     process_lab_module(lab)
-
-    script_dir = os.path.dirname(os.path.realpath(__file__))
-    lab_dir = os.path.join(script_dir, lab_name)
-    # assumes this script is directly under _class
-    svn_dir = os.path.dirname(script_dir)
-
-    if recipients in ('honors', 'staff', 'students'):
-        if recipients == 'honors':
-            roster_dir = os.path.join('_class', 'Honors')
-        else:
-            roster_dir = '_rosters'
-        roster_path = os.path.join(svn_dir, roster_dir, recipients + '.txt')
-        with open(roster_path) as roster_file:
-            netids = list(roster_file)
-    else:
-        netids = recipients.split(',')
 
     update_mode = lab.readonly_updated or lab.writable_updated or \
         lab.shared_updated
@@ -68,7 +53,6 @@ def distribute_lab(lab_name, recipients):
 
     for netid in netids:
         try:
-            netid = netid.strip()
             print('Distributing to', netid)
             lab.generate(netid)
             dest_dir = os.path.join(svn_dir, netid, lab_name)
@@ -81,6 +65,19 @@ def distribute_lab(lab_name, recipients):
                 add_partner_file(netid, dest_dir)
         except Exception:
             traceback.print_exc()
+
+
+def import_lab_module(lab_dir):
+    """
+    Import a lab module.
+
+    :param lab_dir: The directory to import from
+    """
+    lab_path, lab_name = os.path.split(lab_dir)
+    sys.path.insert(0, lab_path)
+    lab = importlib.import_module(lab_name)
+    sys.path.pop(0)
+    return lab
 
 
 def process_lab_module(lab):
@@ -289,7 +286,65 @@ def main():
         '-f', '--file', type=argparse.FileType(),
         help='Distribute to the NetIDs (one per line) in FILE')
 
-    parser.parse_args()
+    args = parser.parse_args()
+    args.lab = args.lab.rstrip('/')
+    netids = get_netids(args)
+    distribute_lab(netids, args.lab, args.svn_dir)
+
+
+def get_netids(args):
+    """
+    Get a list of NetIDs to distribute to, based on the program
+    arguments.
+
+    :param args: The arguments passed to the program
+    :return: the list of NetIDs
+    """
+    if args.roster:
+        roster_path = os.path.join(args.svn_dir, args.roster)
+        with open(roster_path) as roster_file:
+            return get_netids_from_file(roster_file)
+
+    if args.file:
+        return get_netids_from_file(args.file)
+
+    if args.netids:
+        return args.netids
+
+    if args.missing:
+        return get_missing_netids(args)
+
+
+def get_netids_from_file(netids_file):
+    """
+    Get a list of NetIDs from a file.
+
+    :param netids_file: The file to read from
+    :return: the list of NetIDs
+    """
+    return [line.rstrip() for line in netids_file]
+
+
+def get_missing_netids(args):
+    """
+    Get a list of NetIDs missing the lab to be distributed.
+
+    :param args: The arguments passed to the program
+    :return: the list of NetIDs
+    """
+    roster_path = os.path.join(args.svn_dir, STUDENT_ROSTER)
+    with open(roster_path) as roster_file:
+        netids = get_netids_from_file(roster_file)
+
+    lab_name = os.path.basename(args.lab)
+    missing = []
+    for netid in netids:
+        lab_dir = os.path.join(args.svn_dir, netid, lab_name)
+        if not in_svn(lab_dir):
+            missing.append(netid)
+
+    return missing
+
 
 EPILOG = '''\
 Note that this script DOES NOT commit to SVN, to give you a chance to verify
@@ -337,7 +392,4 @@ __init.py__ DETAILS
     - a list called "shared_updated", to update any _shared files'''
 
 if __name__ == '__main__':
-    if len(sys.argv) == 3:
-        distribute_lab(sys.argv[1], sys.argv[2])
-    else:
-        print(__doc__.strip())
+    main()
