@@ -74,7 +74,7 @@ def distribute_lab(lab_name, recipients):
             mark_ignored(lab.ignore, dest_dir)
             if not (update_mode or lab.individual):
                 add_partner_file(netid, dest_dir)
-        except:
+        except Exception:
             traceback.print_exc()
 
 
