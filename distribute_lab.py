@@ -243,7 +243,7 @@ def main():
     script_dir = os.path.dirname(os.path.realpath(__file__))
     default_svn_dir = os.path.dirname(script_dir)
     parser.add_argument(
-        '-s', '--svn_dir', default=default_svn_dir,
+        '-s', '--svn-dir', default=default_svn_dir,
         help='''The path to the SVN directory. Assumed to be one level above
                 the script directory if omitted''')
 
