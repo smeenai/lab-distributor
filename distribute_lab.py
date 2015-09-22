@@ -266,7 +266,7 @@ def process_file_list(file_list):
     subdirectory files to be handled properly.
 
     :param file_list: The file list to process
-    :return the processed file list
+    :return: the processed file list
     """
     return [path.split('/') for path in file_list]
 
@@ -411,7 +411,7 @@ def call_silently(args, suppress_stderr=False):
 
     :param args: The program arguments, passed to `subprocess.call`
     :param supress_stderr: Whether to silence stderr
-    :return the return code of the command
+    :return: the return code of the command
     """
     with open(os.devnull, 'w') as fnull:
         stderr = fnull if suppress_stderr else None
