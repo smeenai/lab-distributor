@@ -14,6 +14,11 @@ import subprocess
 import sys
 import traceback
 
+# standard roster paths within SVN
+STAFF_ROSTER = '_rosters/staff.txt'
+STUDENT_ROSTER = '_rosters/students.txt'
+HONORS_ROSTER = '_class/Honors/honors.txt'
+
 # trailing commas are okay in Python thankfully
 IGNORE_PATTERNS = [
     '*.bak',  # Vim backup files
@@ -250,23 +255,23 @@ def main():
     recipients_group = parser.add_mutually_exclusive_group(required=True)
     recipients_group.add_argument(
         '-a', '--staff', dest='roster', action='store_const',
-        const='_rosters/staff.txt',
+        const=STAFF_ROSTER,
         help='''Distribute to all staff. Assumes an up-to-date staff roster at
-                SVN_DIR/_rosters/staff.txt''')
+                SVN_DIR/''' + STAFF_ROSTER)
     recipients_group.add_argument(
         '-u', '--students', dest='roster', action='store_const',
-        const='_rosters/students.txt',
+        const=STUDENT_ROSTER,
         help='''Distribute to all students. Assumes an up-to-date student
-                roster at SVN_DIR/_rosters/students.txt''')
+                roster at SVN_DIR/''' + STUDENT_ROSTER)
     recipients_group.add_argument(
         '-o', '--honors', dest='roster', action='store_const',
         const='_class/Honors/honors.txt',
         help='''Distribute to all honors students. Assumes an up-to-date honors
-                roster at SVN_DIR/_class/Honors/honors.txt''')
+                roster at SVN_DIR/''' + HONORS_ROSTER)
     recipients_group.add_argument(
         '-m', '--missing', action='store_true',
-        help='''Distribute to all students in SVN_DIR/_roster/students.txt
-                without the lab directory. Assumes an up-to-date SVN_DIR''')
+        help=('''Distribute to all students in SVN_DIR/''' + STUDENT_ROSTER +
+              ''' without the lab directory. Assumes an up-to-date SVN_DIR'''))
     recipients_group.add_argument(
         '-n', '--netids', nargs='+',
         help='Distribute to the space-separated list of NetIDs')
