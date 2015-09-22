@@ -45,7 +45,7 @@ EXAMPLES
     Distribute Lab 2 files to all students
 
   %(prog)s Lab4 --netids foo2 bar4 baz8
-    Distribute Lab 4 files to students foo2, bar4 and baz8
+    Distribute Lab 4 files to students foo2, bar4, and baz8
 
   %(prog)s Lab8 --missing
     Distribute Lab 8 files to all students without them
