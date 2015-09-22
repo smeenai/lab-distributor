@@ -1,56 +1,11 @@
 #!/usr/bin/env python
 """
-Usage: ./distribute_lab.py lab_directory recipients
-    - lab_directory is the name of the directory containing the lab files.
-      This MUST contain an __init__.py file - details below.
-    - recipients can be
-        - "staff" to distribute to all staff, or
-        - "students" to distribute to all students, or
-        - "honors" to distribute to all honors students
-          (assumes roster at _class/Honors/honors.txt), or
-        - a comma-separated list of NetIDs, to distribute to only those NetIDs.
-This DOES NOT actually commit to SVN, but it does everything else
-
-Examples:
-    ./distribute_lab.py Lab1 staff
-    Distributes Lab 1 files to all staff
-
-    ./distribute_lab.py Lab2 students
-    Distributes Lab 2 files to all students
-
-    ./distribute_lab.py Lab4 foo1,bar2,baz3
-    Distributes Lab 4 files to students foo1, bar2 and baz3
-
-__init.py__ details
-This script (ab)uses the __init__.py file to hold distribution information.
-The __init__.py can have the following (all elements are optional):
-    - a list called "readonly" containing the names of all files to be
-      distributed as read-only.
-    - a list called "writable" containing the names of all files to be
-      distributed as read-write.
-    - a list called "shared" containing the names of all files to be
-      distributed to _shared/lab_name.
-    - a list called "ignore" containing additional file patterns to ignore.
-      These will be added to the svn:ignore of the Lab folder, so format them
-      accordingly. Some patterns are automatically ignored - see the list
-      called "ignore_patterns" below.
-    - a function called "generate" which takes a NetID as an argument and
-      generates files specific to that NetID. The names of these files should
-      be included in either the readonly or writable list as appropriate.
-    - a boolean called "individual" which prevents generation of partners.txt
-      files if true. Assumed to be false if not present.
-    - a list called "readonly_updated". If this list is present and not empty,
-      only the files in this list are distributed as read-only, and
-      partners.txt files are not regenerated.
-    - a list called "writable_updated". The same as "readonly_updated", except
-      the files are distributed as read-write. Both *_updated lists can be
-      present, and can be used to correct files distributed with incorrect
-      write permissions as well as add new files.
-    - a list called "shared_updated", to update any _shared files.
+Lab file distribution script. Run with -h for usage information.
 """
 
 from __future__ import print_function
 
+import argparse
 import importlib
 import os
 import shutil
@@ -271,6 +226,98 @@ def call_silently(args, suppress_stderr=False):
     with open(os.devnull, 'w') as fnull:
         stderr = fnull if suppress_stderr else None
         return subprocess.call(args, stdout=fnull, stderr=stderr)
+
+
+def main():
+    """
+    The entry point of the script.
+    """
+
+    parser = argparse.ArgumentParser(
+        description='Lab file distribution script', epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        'lab',
+        help='''The path to the lab directory. This MUST contain an __init__.py
+                file; see below for details''')
+
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    default_svn_dir = os.path.dirname(script_dir)
+    parser.add_argument(
+        '-s', '--svn_dir', default=default_svn_dir,
+        help='''The path to the SVN directory. Assumed to be one level above
+                the script directory if omitted''')
+
+    recipients_group = parser.add_mutually_exclusive_group(required=True)
+    recipients_group.add_argument(
+        '-a', '--staff', action='store_true',
+        help='''Distribute to all staff. Assumes an up-to-date staff roster at
+                SVN_DIR/_rosters/staff.txt''')
+    recipients_group.add_argument(
+        '-u', '--students', action='store_true',
+        help='''Distribute to all students. Assumes an up-to-date student
+                roster at SVN_DIR/_rosters/students.txt''')
+    recipients_group.add_argument(
+        '-o', '--honors', action='store_true',
+        help='''Distribute to all honors students. Assumes an up-to-date honors
+                roster at SVN_DIR/_class/Honors/honors.txt''')
+    recipients_group.add_argument(
+        '-m', '--missing', action='store_true',
+        help='''Distribute to all students missing the lab. Assumes an
+                up-to-date SVN_DIR''')
+    recipients_group.add_argument(
+        '-n', '--netids', nargs='+',
+        help='Distribute to the space-separated list of NetIDs')
+    recipients_group.add_argument(
+        '-f', '--file', type=argparse.FileType(),
+        help='Distribute to the NetIDs (one per line) in FILE')
+
+    parser.parse_args()
+
+EPILOG = '''\
+Note that this script DOES NOT commit to SVN, to give you a chance to verify
+the distributed files. It does add everything to SVN, however, so once you're
+satisfied, you can just commit and everything should go through.
+
+EXAMPLES
+  %(prog)s Lab1 --staff
+    Distribute Lab 1 files to all staff
+
+  %(prog)s Lab2 --students
+    Distribute Lab 2 files to all students
+
+  %(prog)s Lab4 --netids foo2 bar4 baz8
+    Distribute Lab 4 files to students foo2, bar4 and baz8
+
+  %(prog)s Lab8 --missing
+    Distribute Lab 8 files to all students without them
+
+__init.py__ DETAILS
+  This script (ab)uses the __init__.py file to hold distribution information.
+  The __init__.py can have the following (all elements are optional):
+    - a list called "readonly" containing the names of all files to be
+      distributed as read-only
+    - a list called "writable" containing the names of all files to be
+      distributed as writable
+    - a list called "shared" containing the names of all files to be
+      distributed to _shared/lab_name
+    - a list called "ignore" containing additional file patterns to ignore.
+      These will be added to the svn:ignore of the Lab folder, so format them
+      accordingly. Some patterns are automatically ignored; see the list
+      called "ignore_patterns" below
+    - a function called "generate" which takes a NetID as an argument and
+      generates files specific to that NetID. The names of these files should
+      be included in either the readonly or writable list as appropriate
+    - a boolean called "individual" which prevents generation of partners.txt
+      files if true. Assumed to be false if not present
+    - a list called "readonly_updated". If this list is present and not empty,
+      only the files in this list are distributed as read-only, and
+      partners.txt files are not regenerated
+    - a list called "writable_updated". The same as "readonly_updated", except
+      the files are distributed as writable. Both *_updated lists can be
+      present, and can be used to correct files distributed with incorrect
+      write permissions as well as add new files
+    - a list called "shared_updated", to update any _shared files'''
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
