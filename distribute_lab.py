@@ -37,8 +37,9 @@ def distribute_lab(netids, lab_dir, svn_dir):
     """
     Distribute the specified lab to the specified NetIDs.
 
-    :param lab_dir: The path to the lab directory
     :param netids: A list of NetIDs to distribute to
+    :param lab_dir: The path to the lab directory
+    :param svn_dir: The path to the root SVN directory
     """
     lab_name = os.path.basename(lab_dir)
     lab = import_lab_module(lab_dir)
@@ -82,8 +83,10 @@ def import_lab_module(lab_dir):
 
 def process_lab_module(lab):
     """
-    Processes a lab module to fill in default values for optional members
+    Process a lab module to fill in default values for optional members
     and process all file lists.
+
+    :param lab: The lab module to process, modified in-place
     """
     lab.readonly = getattr(lab, 'readonly', [])
     lab.writable = getattr(lab, 'writable', [])
@@ -106,15 +109,23 @@ def process_lab_module(lab):
 
 def process_file_list(file_list):
     """
-    Splits the file names in a file list by directory,
-    to allow subdirectory files to be handled properly.
+    Split the file names in a file list by directory, to allow
+    subdirectory files to be handled properly.
+
+    :param file_list: The file list to process
+    :return the processed file list
     """
     return [path.split('/') for path in file_list]
 
 
 def add_shared_files(lab_dir, svn_dir, lab_name, shared):
     """
-    Adds shared files to _shared/lab_name
+    Add shared files to _shared/lab_name
+
+    :param lab_dir: The path to the lab directory
+    :param svn_dir: The path to the root SVN directory
+    :param lab_name: The lab name
+    :param shared: The list of shared files to add
     """
     if not shared:
         return
@@ -127,7 +138,9 @@ def add_shared_files(lab_dir, svn_dir, lab_name, shared):
 
 def add_to_svn(path):
     """
-    Adds the path to SVN, if it's not already present.
+    Add the path to SVN, if it's not already present.
+
+    :param path: The path to add
     """
     if not in_svn(path):
         call_silently(['svn', 'add', path])
@@ -146,7 +159,9 @@ def in_svn(path):
 
 def add_directory(dest_dir):
     """
-    Creates a directory and adds it to SVN.
+    Create a directory and add it to SVN.
+
+    :param dest_dir: The directory to add
     """
     if not os.path.isdir(dest_dir):
         os.mkdir(dest_dir)
@@ -155,7 +170,10 @@ def add_directory(dest_dir):
 
 def add_subdirectories(file_path, dest_dir):
     """
-    Creates and adds all the subdirectories in a path to SVN.
+    Create and add all the subdirectories in a path to SVN.
+
+    :param file_path: The path to add the subdirectories for
+    :param dest_dir: The directory to add the subdirectories to
     """
     current_dir = dest_dir
     for child_dir in file_path[:-1]:
@@ -165,8 +183,11 @@ def add_subdirectories(file_path, dest_dir):
 
 def add_files(file_names, lab_dir, dest_dir):
     """
-    Copies over all files in file_names from lab_dir to dest_dir
-    and adds the copied files to SVN.
+    Copy over files and add them to SVN.
+
+    :param file_names: The list of files to copy
+    :param lab_dir: The directory to copy from
+    :param dest_dir: The directory to copy to
     """
     for file_name in file_names:
         add_subdirectories(file_name, dest_dir)
@@ -181,7 +202,10 @@ def add_files(file_names, lab_dir, dest_dir):
 
 def add_partner_file(netid, dest_dir):
     """
-    Adds a partners.txt file containing netid to dest_dir.
+    Add a default partners.txt file.
+
+    :param netid: The NetID to put
+    :param dest_dir: The destination directory
     """
     partner_file_path = os.path.join(dest_dir, 'partners.txt')
     # opening as binary so that newline is written as '\n' even on Windows
@@ -192,7 +216,10 @@ def add_partner_file(netid, dest_dir):
 
 def mark_readonly(file_names, dest_dir):
     """
-    Marks the files in file_names as read-only, both in SVN and the filesystem.
+    Mark files as read-only, both in SVN and the filesystem.
+
+    :param file_names: A list of files to mark
+    :param dest_dir: The directory containing the files
     """
     if not file_names:
         # don't call svn propset on empty path list
@@ -209,7 +236,10 @@ def mark_readonly(file_names, dest_dir):
 
 def mark_writable(file_names, dest_dir):
     """
-    Marks the files in file_names as writable, both in SVN and the filesystem.
+    Mark files as writable, both in SVN and the filesystem.
+
+    :param file_names: A list of files to mark
+    :param dest_dir: The directory containing the files
     """
     if not file_names:
         # don't call svn propset on empty path list
@@ -224,7 +254,10 @@ def mark_writable(file_names, dest_dir):
 
 def mark_ignored(patterns, dest_dir):
     """
-    Adds the specified patterns to the svn:ignore of dest_dir.
+    Adds the specified patterns to svn:ignore.
+
+    :param patterns: The patterns to ignore
+    :param dest_dir: The directory to set svn:ignore for
     """
     patterns = [os.path.join(*pattern) for pattern in patterns]
     ignore_list = '\n'.join(IGNORE_PATTERNS + patterns)
@@ -233,7 +266,11 @@ def mark_ignored(patterns, dest_dir):
 
 def call_silently(args, suppress_stderr=False):
     """
-    Calls a command silently, suppressing stdout and optionally stderr.
+    Call a command silently, suppressing stdout and optionally stderr.
+
+    :param args: The program arguments, passed to `subprocess.call`
+    :param supress_stderr: Whether to silence stderr
+    :return the return code of the command
     """
     with open(os.devnull, 'w') as fnull:
         stderr = fnull if suppress_stderr else None
