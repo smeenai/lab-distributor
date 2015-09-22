@@ -132,9 +132,19 @@ def add_to_svn(path):
     """
     Adds the path to SVN, if it's not already present.
     """
-    not_in_svn = call_silently(['svn', 'info', path], True)
-    if not_in_svn:
+    if not in_svn(path):
         call_silently(['svn', 'add', path])
+
+
+def in_svn(path):
+    """
+    Check if path exists in SVN.
+
+    :param path: The path to check for existence
+    :return true if it exists and false if not
+    """
+    return_code = call_silently(['svn', 'info', path], True)
+    return return_code == 0
 
 
 def add_directory(dest_dir):
