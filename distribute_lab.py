@@ -334,6 +334,7 @@ def add_files(file_names, lab_dir, dest_dir):
             os.chmod(dest_path, stat.S_IWUSR)
         shutil.copy2(file_path, dest_path)
 
+    # adding a directory adds all the files in it
     add_to_svn(dest_dir)
 
 
