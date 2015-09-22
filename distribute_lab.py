@@ -323,7 +323,7 @@ def add_files(file_names, lab_dir, dest_dir):
 
 def add_directory(dest_dir):
     """
-    Create a directory and add it to SVN.
+    Create a directory if it doesn't already exist.
 
     :param dest_dir: The directory to add
     """
