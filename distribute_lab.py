@@ -232,7 +232,6 @@ def main():
     """
     The entry point of the script.
     """
-
     parser = argparse.ArgumentParser(
         description='Lab file distribution script', epilog=EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter)
