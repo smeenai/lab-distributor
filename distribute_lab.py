@@ -224,6 +224,7 @@ def distribute_lab(netids, lab_dir, svn_dir):
             if not (update_mode or lab.individual):
                 add_partner_file(netid, dest_dir)
         except Exception:
+            logging.exception('FAILED to distribute to %s', netid)
             failed_distributions.append((netid, sys.exc_info()))
 
     if failed_distributions:
