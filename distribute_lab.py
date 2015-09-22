@@ -87,15 +87,16 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument(
         'lab',
-        help='''The path to the lab directory. This MUST contain an __init__.py
-                file; see below for details''')
+        help='''The path to the lab directory. This directory MUST contain an
+                __init__.py file; see below for details''')
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     default_svn_dir = os.path.dirname(script_dir)
     parser.add_argument(
         '-s', '--svn-dir', default=default_svn_dir,
-        help='''The path to the SVN directory. Assumed to be one level above
-                the script directory if omitted''')
+        help='''The path to the root of the SVN directory. Assumed to be one
+                level above the script directory if omitted, which works when
+                the script is present in the _class directory in SVN''')
 
     recipients_group = parser.add_mutually_exclusive_group(required=True)
     recipients_group.add_argument(
