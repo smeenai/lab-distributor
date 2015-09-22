@@ -395,7 +395,7 @@ def mark_writable(file_names, dest_dir):
 
 def mark_ignored(patterns, dest_dir):
     """
-    Adds the specified patterns to svn:ignore.
+    Add the specified patterns to svn:ignore.
 
     :param patterns: The patterns to ignore
     :param dest_dir: The directory to set svn:ignore for
