@@ -18,7 +18,7 @@ STAFF_ROSTER = '_rosters/staff.txt'
 STUDENT_ROSTER = '_rosters/students.txt'
 HONORS_ROSTER = '_class/Honors/honors.txt'
 
-# trailing commas are okay in Python thankfully
+# default ignore patterns for each directory
 IGNORE_PATTERNS = [
     '*.bak',  # Vim backup files
     '*.exe',  # Windows executable files
@@ -416,6 +416,7 @@ def call_silently(args, suppress_stderr=False):
     with open(os.devnull, 'w') as fnull:
         stderr = fnull if suppress_stderr else None
         return subprocess.call(args, stdout=fnull, stderr=stderr)
+
 
 if __name__ == '__main__':
     main()
