@@ -249,15 +249,18 @@ def main():
 
     recipients_group = parser.add_mutually_exclusive_group(required=True)
     recipients_group.add_argument(
-        '-a', '--staff', action='store_true',
+        '-a', '--staff', dest='roster', action='store_const',
+        const='_rosters/staff.txt',
         help='''Distribute to all staff. Assumes an up-to-date staff roster at
                 SVN_DIR/_rosters/staff.txt''')
     recipients_group.add_argument(
-        '-u', '--students', action='store_true',
+        '-u', '--students', dest='roster', action='store_const',
+        const='_rosters/students.txt',
         help='''Distribute to all students. Assumes an up-to-date student
                 roster at SVN_DIR/_rosters/students.txt''')
     recipients_group.add_argument(
-        '-o', '--honors', action='store_true',
+        '-o', '--honors', dest='roster', action='store_const',
+        const='_class/Honors/honors.txt',
         help='''Distribute to all honors students. Assumes an up-to-date honors
                 roster at SVN_DIR/_class/Honors/honors.txt''')
     recipients_group.add_argument(
