@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Lab file distribution script. Run with -h for usage information.
 """
