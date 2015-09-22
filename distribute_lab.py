@@ -321,7 +321,8 @@ def main():
         help='Distribute to the space-separated list of NetIDs')
     recipients_group.add_argument(
         '-f', '--file', type=argparse.FileType(),
-        help='Distribute to the NetIDs (one per line) in FILE')
+        help='''Distribute to the NetIDs (one per line) in FILE, or - to read
+                from stdin''')
 
     args = parser.parse_args()
     args.lab = args.lab.rstrip('/')
