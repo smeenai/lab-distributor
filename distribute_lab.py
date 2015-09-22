@@ -187,6 +187,7 @@ def add_files(file_names, lab_dir, dest_dir):
 
     add_to_svn(dest_dir)
 
+
 def add_partner_file(netid, dest_dir):
     """
     Add a default partners.txt file.
