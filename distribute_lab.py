@@ -6,6 +6,7 @@ Lab file distribution script. Run with -h for usage information.
 from __future__ import print_function
 import argparse
 import importlib
+import logging
 import os
 import shutil
 import stat
@@ -82,6 +83,9 @@ def main():
     """
     The entry point of the script.
     """
+    logging.basicConfig(level=logging.INFO, format='[%(asctime)s] %(message)s',
+                        datefmt='%H:%M:%S')
+
     parser = argparse.ArgumentParser(
         description='Lab file distribution script', epilog=EPILOG,
         formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -205,9 +209,11 @@ def distribute_lab(netids, lab_dir, svn_dir):
     shared = lab.shared_updated if update_mode else lab.shared
     add_shared_files(lab_dir, svn_dir, lab_name, shared)
 
+    logging.info('Starting distribution')
+    failed_distributions = []
     for netid in netids:
         try:
-            print('Distributing to', netid)
+            logging.info('Distributing to %s', netid)
             lab.generate(netid)
             dest_dir = os.path.join(svn_dir, netid, lab_name)
             add_directory(dest_dir)
@@ -218,7 +224,15 @@ def distribute_lab(netids, lab_dir, svn_dir):
             if not (update_mode or lab.individual):
                 add_partner_file(netid, dest_dir)
         except Exception:
-            traceback.print_exc()
+            failed_distributions.append((netid, sys.exc_info()))
+
+    if failed_distributions:
+        logging.error('Distribution to the following NetIDs failed')
+        for netid, exc_info in failed_distributions:
+            print('{}\n{}'.format(
+                netid, ''.join(traceback.format_exception(*exc_info))))
+
+    logging.info('Distribution complete')
 
 
 def import_lab_module(lab_dir):
@@ -283,7 +297,7 @@ def add_shared_files(lab_dir, svn_dir, lab_name, shared):
     if not shared:
         return
 
-    print('Distributing shared files')
+    logging.info('Distributing shared files')
     shared_dir = os.path.join(svn_dir, '_shared', lab_name)
     add_directory(shared_dir)
     add_files(shared, lab_dir, shared_dir)
