@@ -198,8 +198,8 @@ def distribute_lab(netids, lab_dir, svn_dir):
     lab = import_lab_module(lab_dir)
     process_lab_module(lab)
 
-    update_mode = lab.readonly_updated or lab.writable_updated or \
-        lab.shared_updated
+    update_mode = (lab.readonly_updated or lab.writable_updated or
+                   lab.shared_updated)
     readonly = lab.readonly_updated if update_mode else lab.readonly
     writable = lab.writable_updated if update_mode else lab.writable
     shared = lab.shared_updated if update_mode else lab.shared
