@@ -131,7 +131,7 @@ def main():
                 from stdin''')
 
     args = parser.parse_args()
-    args.lab = args.lab.rstrip('/')
+    args.lab = os.path.realpath(args.lab)
     netids = get_netids(args)
     distribute_lab(netids, args.lab, args.svn_dir)
 
